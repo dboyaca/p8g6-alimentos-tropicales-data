@@ -1,0 +1,67 @@
+--Recordemos que el proyecto permite al usuario controlar los cultivos de los productos que comercializa
+
+CREATE TABLE AlimentoTropical(
+	id 				SERIAL,
+	nombre 				VARCHAR(150) NOT NULL UNIQUE,
+	pesoPromUnidad 			DECIMAL(5,2) NOT NULL,
+	grasaX100g 			DECIMAL(5,2) NOT NULL,
+	proteinaX100g 			DECIMAL(5,2) NOT NULL,
+	carbohidX100g 			DECIMAL(5,2) NOT NULL,
+	vitaminaC 			BOOLEAN NOT NULL,
+	vitaminaD 			BOOLEAN NOT NULL,
+	hierro 				BOOLEAN NOT NULL,
+	
+	PRIMARY KEY(id)
+	
+);
+
+-- Depronto tiene varios cultivos en distintas fincas de una misma vereda, tiene que agregar algo más a los nombres de
+-- tal manera que cada cultivo se diferencie y haya integridad referencial
+
+--Tablas para llenar ComboBox's en el Mockup
+CREATE TABLE Pais(
+	id 				SERIAL,
+	nombre 				VARCHAR(100) UNIQUE NOT NULL,
+	
+	PRIMARY KEY(id)
+);
+
+CREATE TABLE Region(
+	id				SERIAL,
+	nombre 				VARCHAR(100) UNIQUE NOT NULL,
+	
+	PRIMARY KEY(id)
+);
+
+
+CREATE TABLE Zona(
+	id				SERIAL,
+	id_pais 			INT NOT NULL,
+	id_region			INT NOT NULL,
+	
+	PRIMARY KEY (id),
+	
+	--No se puede repetir una zona de cultivo. Si coinciden el país y la zona (por ej. dos cultivos en una misma vereda)
+	--tiene que el cliente ser más específico indicando, por ejemplo: finca_JoseRodriguez, fincaGilmaRondon.
+	
+	--Ojo que lo anterior no implica que diferentes alimentos puedan ser cultivados en una misma zona!
+	
+	--No nos inclinamos por poner una llave primaria compuesta ya que esta tabla está siendo usada en otra tabla, mejor un id
+	UNIQUE (id_pais, id_region),
+	
+	CONSTRAINT fk_zona_pais 	FOREIGN KEY (id_pais) REFERENCES Pais(id),
+	CONSTRAINT fk_zona_region 	FOREIGN KEY (id_region) REFERENCES Region(id)
+);
+
+CREATE TABLE Cultivo(
+	id 				SERIAL,
+	alimento 			INTEGER NOT NULL,
+	zona 				INT NOT NULL,
+	hectareas			DECIMAL(5,2) NOT NULL,
+	fecha				DATE NOT NULL,
+	
+	PRIMARY KEY(id),
+	CONSTRAINT fk_alimento_cultivo 	FOREIGN KEY (alimento) REFERENCES AlimentoTropical(id),
+	CONSTRAINT fk_cultivo_zona 	FOREIGN KEY (zona) REFERENCES Zona(id)
+);
+
